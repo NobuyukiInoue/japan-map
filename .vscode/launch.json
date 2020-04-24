@@ -1,0 +1,29 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}"
+        },
+        {
+            "name": "Python: get_wiki_todoufuken.py",
+            "type": "python",
+            "request": "launch",
+            "program": "get_wiki_todoufuken.py"
+        },
+        {
+            "name": "Python: get_wiki_todoufuken.py wiki/都道府県.html",
+            "type": "python",
+            "request": "launch",
+            "program": "get_wiki_todoufuken.py",
+            "args":[
+                "wiki/都道府県.html",
+            ]
+        }
+    ]
+}
