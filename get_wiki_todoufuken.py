@@ -122,9 +122,17 @@ def get_table(contents):
 		if "<tr>" in line:
 			row_flds = []
 			colStr = ""
+			fld_num = 0
 
 		if "<th " in line or "<th>" in line \
 			or "<td " in line or "<td>" in line:
+
+			if fld_num == 2:
+				colStr = get_imageFileName(line)
+				if colStr != "":
+					continue
+
+			# remove <tag>..</tag>
 			workStr = line
 			while True:
 				pos = get_tag_position(workStr)
@@ -132,10 +140,13 @@ def get_table(contents):
 					colStr += workStr
 					break
 				elif pos[1] != 0:
-					workStr = workStr[:pos[0]] + workStr[pos[1]+1:]
+					workStr = workStr[:pos[0]] + workStr[pos[1] + 1:]
+
+			fld_num += 1
 
 		if "</th>" in line \
 			or "</td>" in line:
+			colStr = colStr.replace(",", "")
 			row_flds.append(colStr)
 			colStr = ""
 
@@ -155,6 +166,21 @@ def get_tag_position(line):
 			pos_end = i
 			break
 	return (pos_start, pos_end)
+
+def get_imageFileName(line):
+	len_line = len(line)
+	pos_start, pos_end = 0, 0
+	pos_start = line.find("src=")
+	if pos_start < 0:
+		return ""
+	pos_end = line.find(".png\"", pos_start)
+	if pos_end < 0 or pos_end <= pos_start:
+		return ""
+	workStr = line[pos_start : pos_end + 4]
+	pos_end2 = workStr.rfind("/")
+	if pos_end2 > 0:
+		return workStr[pos_end2 + 1:]
+	return workStr
 
 def output_tsv_format_string(res):
 	for row in res:

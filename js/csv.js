@@ -42,8 +42,12 @@ function createTable(data, arg_id, arg_class, arg_style, arg_border) {
             var td = document.createElement('td');
             if (j == 1) {
                td.innerText = data[i][j].substring(2);
+            } else if (i > 0 && j == 2) {
+                var img = document.createElement('img');
+                img.setAttribute("src", "images/" + data[i][j]);
+                td.appendChild(img);
             } else if (i > 0 && 6 <= j && j <= 8 ){
-                td.innerText = Number(data[i][j]).toLocaleString();
+                td.innerText = Number(data[i][j]).toFixed(2);
                 td.setAttribute("align", "right");
             } else {
                td.innerText = data[i][j];
