@@ -27,7 +27,7 @@ function convertCSVtoArray(str) {        // 読み込んだCSVデータが文字
     return result;
 }
 
-// tableタグを出力する
+// 都道府県一覧のtableタグを出力する
 function createTable(data, arg_id, arg_class, arg_style, arg_border) {
     var table = document.createElement('table');
     table.setAttribute("id", arg_id);
@@ -35,27 +35,114 @@ function createTable(data, arg_id, arg_class, arg_style, arg_border) {
     table.setAttribute("style", arg_style);
     table.setAttribute("border", arg_border);
 
+    var thead = document.createElement('thead');
+    var tr = document.createElement('tr');
+    for (var j = 0; j < data[0].length; j++) {
+        var td = document.createElement('td');
+        td.innerText = data[0][j];
+        tr.appendChild(td);
+    }
+    thead.appendChild(tr);
+    table.appendChild(thead);
+
     var tbody = document.createElement('tbody');
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 1; i < data.length; i++) {
+        if (data[i].length <= 1) {
+            continue;
+        }
         var tr = document.createElement('tr');
+        tr.setAttribute("height", "26");
+
         for (var j = 0; j < data[i].length; j++) {
             var td = document.createElement('td');
-            if (j == 1) {
-               td.innerText = data[i][j].substring(2);
-            } else if (i > 0 && j == 2) {
-                var img = document.createElement('img');
-                img.setAttribute("src", "images/" + data[i][j]);
-                td.appendChild(img);
-            } else if (i > 0 && 6 <= j && j <= 8 ){
-                td.innerText = Number(data[i][j]).toFixed(2);
-                td.setAttribute("align", "right");
+
+            if (i > 0) {
+                if (j == 1) {
+                    td.innerText = data[i][j].substring(2);
+
+                } else if (j == 2) {
+                    var img = document.createElement('img');
+                    img.setAttribute("src", "images/" + data[i][j]);
+                    td.appendChild(img);
+
+                } else if (j == 6) {
+                    td.innerText = set_comma(Number(data[i][j]));
+                    td.setAttribute("align", "right");
+
+                } else if (j == 7) {
+                    td.innerText = set_comma(Number(data[i][j]).toFixed(2));
+                    td.setAttribute("align", "right");
+
+                } else if (j == 8) {
+                    td.innerText = set_comma(Number(data[i][j]).toFixed(1));
+                    td.setAttribute("align", "right");
+
+                } else {
+                    td.innerText = data[i][j];
+
+                }
             } else {
-               td.innerText = data[i][j];
+                td.innerText = data[i][j];
+
             }
             tr.appendChild(td);
         }
         tbody.appendChild(tr);
     }
+
+    table.appendChild(tbody);
+    return table;
+}
+
+
+// 選択した都道府県のtableタグを出力する
+function create_detailTable(titleData, targetData, arg_id, arg_class, arg_style) {
+    var table = document.createElement('table');
+    table.setAttribute("id", arg_id);
+    table.setAttribute("class", arg_class);
+    table.setAttribute("style", arg_style);
+    table.setAttribute("border", "1");
+
+    var tbody = document.createElement('tbody');
+
+    for (var i = 0; i < targetData.length; i++) {
+        var tr = document.createElement('tr');
+
+        // field title
+        var td = document.createElement('td');
+        td.innerText = titleData[i];
+        tr.appendChild(td);
+
+        // field data
+        var td = document.createElement('td');
+
+        if (i == 1) {
+            td.innerText = targetData[i].substring(2);
+
+        } else if (i == 2) {
+            var img = document.createElement('img');
+            img.setAttribute("src", "images/" + targetData[i]);
+            td.appendChild(img);
+
+        } else if (i == 6) {
+            td.innerText = set_comma(Number(targetData[i]));
+
+        } else if (i == 7) {
+            td.innerText = set_comma(Number(targetData[i]).toFixed(2));
+
+        } else if (i == 8) {
+            td.innerText = set_comma(Number(targetData[i]).toFixed(1));
+
+        } else {
+            td.innerText = targetData[i];
+
+        }
+
+        td.setAttribute("align", "center");
+        tr.appendChild(td);
+
+        tbody.appendChild(tr);
+     }
 
     table.appendChild(tbody);
     return table;
@@ -68,4 +155,14 @@ function get_record(csv_data, target_name) {
             return i;
         }
     }
+}
+
+// 3桁区切りのカンマを付加する
+function set_comma(num) {
+    var s = String(num).split('.');
+    var ret = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    if (s.length > 1) {
+        ret += '.' + s[1];
+    }
+    return ret;
 }

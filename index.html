@@ -13,7 +13,9 @@
 </head>
 <body>
 
-<table id="main" border="1">
+<!-- <table id="main" border="1"> -->
+<table id="main">
+
   <tr>
     <td rowspan="2" height="100" width="250">
       <div id="map"></div>
@@ -24,6 +26,7 @@
         <option value="地方別" selected>地方別</option>
         <option value="人口">人口</option>
         <option value="人口密度">人口密度</option>
+        <option value="面積">面積</option>
       </select>
     </td>
   </tr>
@@ -59,153 +62,24 @@ function set_tableSort() {
     clearTimeout(timer);
 }
 
-// tableタグを出力する
-function create_detailTable(titleData, targetData, arg_id, arg_class, arg_style) {
-    var table = document.createElement('table');
-    table.setAttribute("id", arg_id);
-    table.setAttribute("class", arg_class);
-    table.setAttribute("style", arg_style);
-    table.setAttribute("border", "1");
-
-    var tbody = document.createElement('tbody');
-
-    for (var i = 0; i < targetData.length; i++) {
-        var tr = document.createElement('tr');
-
-        // field title
-        var td = document.createElement('td');
-        td.innerText = titleData[i];
-        tr.appendChild(td);
-
-        // field data
-        var td = document.createElement('td');
-        
-        if (i == 1) {
-            td.innerText = targetData[i].substring(2);
-        } else if (i == 2) {
-            var img = document.createElement('img');
-            img.setAttribute("src", "images/" + targetData[i]);
-            td.appendChild(img);
-        } else if (6 <= i && i <= 7 ){
-            td.innerText = Number(targetData[i]).toFixed(2);
-        } else {
-            td.innerText = targetData[i];
-        }
-        td.setAttribute("align", "center");
-        tr.appendChild(td);
-
-        tbody.appendChild(tr);
-     }
-
-    table.appendChild(tbody);
-    return table;
-}
-
 function main() {
     //地域を設定
     //{"code":[地域のコード], "name": [地域の名前], "color":[地域につける色], "hoverColor":[地域をマウスでホバーしたときの色], "prefectures":[地域に含まれる都道府県のコード]}
     var selectitem = document.getElementById("list");
+    var results = document.getElementById("csv_result").val;
 
     if (selectitem.value == "地方別") {
-        var areas = [
-            {"code": 1 , "name":"北海道地方", "color":"#ca93ea", "hoverColor":"#e0b1fb", "prefectures":[1]},
-            {"code": 2 , "name":"東北地方",   "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":[2,3,4,5,6,7]},
-            {"code": 3 , "name":"関東地方",   "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":[8,9,10,11,12,13,14]},
-            {"code": 4 , "name":"北陸・甲信越地方",   "color":"#52d49c", "hoverColor":"#93ecc5", "prefectures":[15,16,17,18,19,20]},
-            {"code": 4 , "name":"東海地方",   "color":"#77e18e", "hoverColor":"#aff9bf", "prefectures":[21,22,23,24]},
-            {"code": 6 , "name":"近畿地方",   "color":"#f2db7b", "hoverColor":"#f6e8ac", "prefectures":[25,26,27,28,29,30]},
-            {"code": 7 , "name":"中国地方",   "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":[31,32,33,34,35]},
-            {"code": 8 , "name":"四国地方",   "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":[36,37,38,39]},
-            {"code": 9 , "name":"九州地方",   "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":[40,41,42,43,44,45,46]},
-            {"code":10 , "name":"沖縄地方",   "color":"#ea89c4", "hoverColor":"#fdcae9", "prefectures":[47]}
-        ];
+        areas = get_areas_region();
+
     } else if (selectitem.value == "人口") {
-        var results = document.getElementById("csv_result").val;
-        var prefectures = new Array(6);
-        for (var i = 0; i < prefectures.length; i++) {
-            prefectures[i] = [];
-        }
-
-        for (var i = 1; i < results.length; i++) {
-        /*
-            results[i][6] ... 人口
-            results[i][10] ... ISO/JIS番号
-        */
-            var code = Number(results[i][10]);
-
-            if (Number(results[i][6])/10000 >= 1000) {
-                prefectures[0].push(code);
-
-            } else if (Number(results[i][6])/10000 >= 600) {
-                prefectures[1].push(code);
-
-            } else if (Number(results[i][6])/10000 >= 400) {
-                prefectures[2].push(code);
-
-            } else if (Number(results[i][6])/10000 >= 200) {
-                prefectures[3].push(code);
-
-            } else if (Number(results[i][6])/10000 >= 100) {
-                prefectures[4].push(code);
-
-            } else {
-                prefectures[5].push(code);
-
-            }
-        }
-
-        var areas = [
-            {"code": 1 , "name":"1000万人以上", "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[0]},
-            {"code": 2 , "name":"600万人以上",  "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[1]},
-            {"code": 3 , "name":"400万人以上",  "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":prefectures[2]},
-            {"code": 4 , "name":"200万人以上",  "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":prefectures[3]},
-            {"code": 5 , "name":"100万人以上",  "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":prefectures[4]},
-            {"code": 6 , "name":"100万人未満",  "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":prefectures[5]},
-        ];
+        areas = get_areas_population(results);
 
     } else if (selectitem.value == "人口密度") {
-        var results = document.getElementById("csv_result").val;
-        var prefectures = new Array(6);
-        for (var i = 0; i < prefectures.length; i++) {
-            prefectures[i] = [];
-        }
+        areas = get_areas_populationDensity(results);
 
-        for (var i = 1; i < results.length; i++) {
-        /*
-            results[i][8] ... 人口密度
-            results[i][10] ... ISO/JIS番号
-        */
-            var code = Number(results[i][10]);
+    } else if (selectitem.value == "面積") {
+        areas = get_areas_area(results);
 
-            if (Number(results[i][8]) >= 5000) {
-                prefectures[0].push(code);
-
-            } else if (Number(results[i][8]) >= 4000) {
-                prefectures[1].push(code);
-
-            } else if (Number(results[i][8]) >= 1000) {
-                prefectures[2].push(code);
-
-            } else if (Number(results[i][8]) >= 500) {
-                prefectures[3].push(code);
-
-            } else if (Number(results[i][8]) >= 200) {
-                prefectures[4].push(code);
-
-            } else {
-                prefectures[5].push(code);
-
-            }
-        }
-
-        var areas = [
-            {"code": 1 , "name":"5000人/km2以上", "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[0]},
-            {"code": 2 , "name":"4000人/km2以上",  "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[1]},
-            {"code": 3 , "name":"1000人/km2以上",  "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":prefectures[2]},
-            {"code": 4 , "name":"500人/km2以上",  "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":prefectures[3]},
-            {"code": 5 , "name":"200人/km2以上",  "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":prefectures[4]},
-            {"code": 6 , "name":"200人/km2未満",  "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":prefectures[5]},
-        ];
     }
 
     var sub_canvas = document.getElementById("map").childNodes;
@@ -215,54 +89,273 @@ function main() {
         }
     }
 
-    $("#map").japanMap(
-        {
-            areas  : areas,             //上で設定したエリアの情報
-            selection : "prefecture",   //選ぶことができる範囲(県→prefecture、エリア→area)
-            borderLineWidth: 0.25,      //線の幅
-            drawsBoxLine : false,       //canvasを線で囲む場合はtrue
-            movesIslands : true,        //南西諸島を左上に移動させるときはtrue、移動させないときはfalse
-            showsAreaName : true,       //エリア名を表示しない場合はfalse
-            width: 800,                 //canvasのwidth。別途heightも指定可。
-            backgroundColor: "#ffffff", //canvasの背景色
-            font : "MS Mincho",         //地図に表示する文字のフォント
-            fontSize : 12,              //地図に表示する文字のサイズ
-            fontColor : "areaColor",    //地図に表示する文字の色。"areaColor"でエリアの色に合わせる
-            fontShadowColor : "black",  //地図に表示する文字の影の色
+    if (selectitem.value == "地方別") {
+        $("#map").japanMap(
+            {
+                areas  : areas,             //上で設定したエリアの情報
+                selection : "prefecture",   //選ぶことができる範囲(県→prefecture、エリア→area)
+                borderLineWidth: 0.25,      //線の幅
+                drawsBoxLine : false,       //canvasを線で囲む場合はtrue
+                movesIslands : true,        //南西諸島を左上に移動させるときはtrue、移動させないときはfalse
+                showsAreaName : true,       //エリア名を表示しない場合はfalse
+                width: 800,                 //canvasのwidth。別途heightも指定可。
+                backgroundColor: "#ffffff", //canvasの背景色
+                font : "MS Mincho",         //地図に表示する文字のフォント
+                fontSize : 12,              //地図に表示する文字のサイズ
+                fontColor : "areaColor",    //地図に表示する文字の色。"areaColor"でエリアの色に合わせる
+                fontShadowColor : "black",  //地図に表示する文字の影の色
 
-            onSelect:function(data){ //選択範囲をクリックしたときに実行
-                // location.href = areas[data.area.name]; //data.area.nameは選択したエリアの名前
-                console.log(data);
-                //alert(data.area.name + " : " + data.name);
+                onSelect:function(data) { //選択範囲をクリックしたときに実行
+                    var results = document.getElementById("csv_result").val;
 
-                num = get_record(document.getElementById("csv_result").val, data.name);
+                    // location.href = areas[data.area.name]; //data.area.nameは選択したエリアの名前
+                    console.log(data);
+                    //alert(data.area.name + " : " + data.name);
 
-                targetData = document.getElementById("csv_result").val[num];
-            //  alert(targetData[1]);
-            
-                /*
-                var workStr = "番号:       " + targetData[1].substring(0, 2) + "\n";
-                workStr    += "都道府県名: " + targetData[1].substring(2) + "\n";
-                workStr    += "都道府県庁所在地:" + targetData[3] + "\n";
-                workStr    += "人口:       " + Number(targetData[6]).toLocaleString() + " 人\n";
-                workStr    += "面積:       " + Number(targetData[7]).toLocaleString() + " (km2)\n";
-                workStr    += "人口密度:   " + Number(targetData[8]).toLocaleString() + " (人/km2)\n";
+                    num = get_record(results, data.name);
+                    targetData = results[num];
 
-                alert(workStr);
-                */
+                    var e1 = document.getElementById("select_item");
+                    var e2 = document.getElementById("detail");
 
-                var e1 = document.getElementById("select_item");
-                var e2 = document.getElementById("detail");
+                    if (e2 != null)
+                       e1.removeChild(e2);
 
-                if (e2 != null)
-                   e1.removeChild(e2);
+                    var insertHTML = create_detailTable(results[0], targetData, "detail", "tablesorter", "line-height:1.4em; font-size:95%;");
+                    e1.appendChild(insertHTML);
+                },
+            }
+        );
+    } else if (selectitem.value == "人口") {
+        $("#map").japanMap(
+            {
+                areas  : areas,             //上で設定したエリアの情報
+                selection : "prefecture",   //選ぶことができる範囲(県→prefecture、エリア→area)
+                borderLineWidth: 0.25,      //線の幅
+                drawsBoxLine : false,       //canvasを線で囲む場合はtrue
+                movesIslands : true,        //南西諸島を左上に移動させるときはtrue、移動させないときはfalse
+                showsAreaName : true,       //エリア名を表示しない場合はfalse
+                width: 800,                 //canvasのwidth。別途heightも指定可。
+                backgroundColor: "#ffffff", //canvasの背景色
+                font : "MS Mincho",         //地図に表示する文字のフォント
+                fontSize : 12,              //地図に表示する文字のサイズ
+                fontColor : "areaColor",    //地図に表示する文字の色。"areaColor"でエリアの色に合わせる
+                fontShadowColor : "black",  //地図に表示する文字の影の色
 
-                var insertHTML = create_detailTable(document.getElementById("csv_result").val[0], targetData, "detail", "tablesorter", "line-height:1.4em; font-size:95%;");
-                e1.appendChild(insertHTML);
-            },
-        }
-    );
+                onSelect:function(data) { //選択範囲をクリックしたときに実行
+                    var results = document.getElementById("csv_result").val;
+                    console.log(data);
+                },
+            }
+        );
+    } else if (selectitem.value == "人口密度") {
+        $("#map").japanMap(
+            {
+                areas  : areas,             //上で設定したエリアの情報
+                selection : "prefecture",   //選ぶことができる範囲(県→prefecture、エリア→area)
+                borderLineWidth: 0.25,      //線の幅
+                drawsBoxLine : false,       //canvasを線で囲む場合はtrue
+                movesIslands : true,        //南西諸島を左上に移動させるときはtrue、移動させないときはfalse
+                showsAreaName : true,       //エリア名を表示しない場合はfalse
+                width: 800,                 //canvasのwidth。別途heightも指定可。
+                backgroundColor: "#ffffff", //canvasの背景色
+                font : "MS Mincho",         //地図に表示する文字のフォント
+                fontSize : 12,              //地図に表示する文字のサイズ
+                fontColor : "areaColor",    //地図に表示する文字の色。"areaColor"でエリアの色に合わせる
+                fontShadowColor : "black",  //地図に表示する文字の影の色
+
+                onSelect:function(data) { //選択範囲をクリックしたときに実行
+                    var results = document.getElementById("csv_result").val;
+                    console.log(data);
+                },
+            }
+        );
+    } else if (selectitem.value == "面積") {
+        $("#map").japanMap(
+            {
+                areas  : areas,             //上で設定したエリアの情報
+                selection : "prefecture",   //選ぶことができる範囲(県→prefecture、エリア→area)
+                borderLineWidth: 0.25,      //線の幅
+                drawsBoxLine : false,       //canvasを線で囲む場合はtrue
+                movesIslands : true,        //南西諸島を左上に移動させるときはtrue、移動させないときはfalse
+                showsAreaName : true,       //エリア名を表示しない場合はfalse
+                width: 800,                 //canvasのwidth。別途heightも指定可。
+                backgroundColor: "#ffffff", //canvasの背景色
+                font : "MS Mincho",         //地図に表示する文字のフォント
+                fontSize : 12,              //地図に表示する文字のサイズ
+                fontColor : "areaColor",    //地図に表示する文字の色。"areaColor"でエリアの色に合わせる
+                fontShadowColor : "black",  //地図に表示する文字の影の色
+
+                onSelect:function(data) { //選択範囲をクリックしたときに実行
+                    var results = document.getElementById("csv_result").val;
+                    console.log(data);
+                },
+            }
+        );
+    }
 }
+
+// 地方別色分けリストの生成
+function get_areas_region() {
+    var areas = [
+        {"code": 1 , "name":"北海道地方", "color":"#ca93ea", "hoverColor":"#e0b1fb", "prefectures":[1]},
+        {"code": 2 , "name":"東北地方",   "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":[2,3,4,5,6,7]},
+        {"code": 3 , "name":"関東地方",   "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":[8,9,10,11,12,13,14]},
+        {"code": 4 , "name":"北陸・甲信越地方",   "color":"#52d49c", "hoverColor":"#93ecc5", "prefectures":[15,16,17,18,19,20]},
+        {"code": 4 , "name":"東海地方",   "color":"#77e18e", "hoverColor":"#aff9bf", "prefectures":[21,22,23,24]},
+        {"code": 6 , "name":"近畿地方",   "color":"#f2db7b", "hoverColor":"#f6e8ac", "prefectures":[25,26,27,28,29,30]},
+        {"code": 7 , "name":"中国地方",   "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":[31,32,33,34,35]},
+        {"code": 8 , "name":"四国地方",   "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":[36,37,38,39]},
+        {"code": 9 , "name":"九州地方",   "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":[40,41,42,43,44,45,46]},
+        {"code":10 , "name":"沖縄地方",   "color":"#ea89c4", "hoverColor":"#fdcae9", "prefectures":[47]}
+    ];
+
+    return areas;
+}
+
+
+// 人口別色分けリストの生成
+function get_areas_population(results) {
+    var prefectures = new Array(6);
+    for (var i = 0; i < prefectures.length; i++) {
+        prefectures[i] = [];
+    }
+
+    for (var i = 1; i < results.length; i++) {
+    /*
+        results[i][6] ... 人口
+        results[i][10] ... ISO/JIS番号
+    */
+        var code = Number(results[i][10]);
+
+        if (Number(results[i][6])/10000 >= 1000) {
+            prefectures[0].push(code);
+
+        } else if (Number(results[i][6])/10000 >= 600) {
+            prefectures[1].push(code);
+
+        } else if (Number(results[i][6])/10000 >= 400) {
+            prefectures[2].push(code);
+
+        } else if (Number(results[i][6])/10000 >= 200) {
+            prefectures[3].push(code);
+
+        } else if (Number(results[i][6])/10000 >= 100) {
+            prefectures[4].push(code);
+
+        } else {
+            prefectures[5].push(code);
+
+        }
+    }
+
+    var areas = [
+        {"code": 1 , "name":"1000万人以上", "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[0]},
+        {"code": 2 , "name":"600万人以上",  "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[1]},
+        {"code": 3 , "name":"400万人以上",  "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":prefectures[2]},
+        {"code": 4 , "name":"200万人以上",  "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":prefectures[3]},
+        {"code": 5 , "name":"100万人以上",  "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":prefectures[4]},
+        {"code": 6 , "name":"100万人未満",  "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":prefectures[5]},
+    ];
+    
+    return areas;
+}
+
+// 人口密度別色分けリストの生成
+function get_areas_populationDensity(results) {
+    var prefectures = new Array(6);
+    for (var i = 0; i < prefectures.length; i++) {
+        prefectures[i] = [];
+    }
+
+    for (var i = 1; i < results.length; i++) {
+    /*
+        results[i][8] ... 人口密度
+        results[i][10] ... ISO/JIS番号
+    */
+        var code = Number(results[i][10]);
+
+        if (Number(results[i][8]) >= 5000) {
+            prefectures[0].push(code);
+
+        } else if (Number(results[i][8]) >= 4000) {
+            prefectures[1].push(code);
+
+        } else if (Number(results[i][8]) >= 1000) {
+            prefectures[2].push(code);
+
+        } else if (Number(results[i][8]) >= 500) {
+            prefectures[3].push(code);
+
+        } else if (Number(results[i][8]) >= 200) {
+            prefectures[4].push(code);
+
+        } else {
+            prefectures[5].push(code);
+
+        }
+    }
+
+    var areas = [
+        {"code": 1 , "name":"5000人/km2以上", "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[0]},
+        {"code": 2 , "name":"4000人/km2以上",  "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[1]},
+        {"code": 3 , "name":"1000人/km2以上",  "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":prefectures[2]},
+        {"code": 4 , "name":"500人/km2以上",  "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":prefectures[3]},
+        {"code": 5 , "name":"200人/km2以上",  "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":prefectures[4]},
+        {"code": 6 , "name":"200人/km2未満",  "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":prefectures[5]},
+    ];
+
+    return areas;
+}
+
+
+// 面積別色分けリストの生成
+function get_areas_area(results) {
+    var prefectures = new Array(6);
+    for (var i = 0; i < prefectures.length; i++) {
+        prefectures[i] = [];
+    }
+
+    for (var i = 1; i < results.length; i++) {
+    /*
+        results[i][7]  ... 面積
+        results[i][10] ... ISO/JIS番号
+    */
+        var code = Number(results[i][10]);
+
+        if (Number(results[i][7]) >= 20000) {
+            prefectures[0].push(code);
+
+        } else if (Number(results[i][7]) >= 15000) {
+            prefectures[1].push(code);
+
+        } else if (Number(results[i][7]) >= 10000) {
+            prefectures[2].push(code);
+
+        } else if (Number(results[i][7]) >= 5000) {
+            prefectures[3].push(code);
+
+        } else if (Number(results[i][7]) >= 3000) {
+            prefectures[4].push(code);
+
+        } else {
+            prefectures[5].push(code);
+
+        }
+    }
+
+    var areas = [
+        {"code": 1 , "name":"20000km2以上", "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[0]},
+        {"code": 2 , "name":"15000km2以上",  "color":"#f7a6a6", "hoverColor":"#ffcece", "prefectures":prefectures[1]},
+        {"code": 3 , "name":"10000km2以上",  "color":"#fbad8b", "hoverColor":"#ffd7c5", "prefectures":prefectures[2]},
+        {"code": 4 , "name":"5000km2以上",  "color":"#f9ca6c", "hoverColor":"#ffe5b0", "prefectures":prefectures[3]},
+        {"code": 5 , "name":"3000km2以上",  "color":"#a7a5ea", "hoverColor":"#d6d4fd", "prefectures":prefectures[4]},
+        {"code": 6 , "name":"3000km2未満",  "color":"#84b0f6", "hoverColor":"#c1d8fd", "prefectures":prefectures[5]},
+    ];
+
+    return areas;
+}
+
 
 $(function() {
    main();
